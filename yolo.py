@@ -25,16 +25,23 @@ from skimage import color
 
 tf.compat.v1.disable_eager_execution()
 
+_model_dir = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "AND_yolo3", "model_data"
+)
+
+
 class YOLO(object):
     _defaults = {
         # NOTE: Change the model, anchors and classes path dependent on your system!
-        "model_path": 'C:/Users/myip7/Documents/GitHub/neuronDetection/AND_yolo3/trained_weights_final.h5', # change path and weights number here 
-        "anchors_path": 'C:/Users/myip7/Documents/GitHub/neuronDetection/AND_yolo3/yolo_anchors_full_untouch.txt',
-        "classes_path": 'C:/Users/myip7/Documents/GitHub/neuronDetection/AND_yolo3/AND_classes.txt',
-        "score" : 0.3, # was .3
-        "iou" : 0.45, # was .45
-        "model_image_size" : (416, 416),
-        "gpu_num" : 1,
+        "model_path": os.path.join(
+            _model_dir, "trained_weights_final.h5"
+        ),  # change path and weights number here
+        "anchors_path": os.path.join(_model_dir, "yolo_anchors_full_untouch.txt"),
+        "classes_path": os.path.join(_model_dir, "AND_classes.txt"),
+        "score": 0.3,  # was .3
+        "iou": 0.45,  # was .45
+        "model_image_size": (416, 416),
+        "gpu_num": 1,
     }
     @classmethod
     def get_defaults(cls, n):
@@ -62,8 +69,8 @@ class YOLO(object):
         anchors = [float(x) for x in anchors.split(',')]
         return np.array(anchors).reshape(-1, 2)
     def generate(self):
-        model_path = os.path.expanduser(self.model_path)
-        assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
+        model_path = os.path.expanduser(self._defaults["model_path"])
+        assert model_path.endswith(".h5"), "Keras model or weights must be a .h5 file."
         # Load model, or construct model and load weights.
         num_anchors = len(self.anchors)
         num_classes = len(self.class_names)
@@ -71,9 +78,18 @@ class YOLO(object):
         try:
             self.yolo_model = load_model(model_path, compile=False)
         except:
-            self.yolo_model = tiny_yolo_body(Input(shape=(None,None,3)), num_anchors//2, num_classes) \
-                if is_tiny_version else yolo_body(Input(shape=(None,None,3)), num_anchors//3, num_classes)
-            self.yolo_model.load_weights(self.model_path) # make sure model, anchors and classes match
+            self.yolo_model = (
+                tiny_yolo_body(
+                    Input(shape=(None, None, 3)), num_anchors // 2, num_classes
+                )
+                if is_tiny_version
+                else yolo_body(
+                    Input(shape=(None, None, 3)), num_anchors // 3, num_classes
+                )
+            )
+            self.yolo_model.load_weights(
+                model_path
+            )  # make sure model, anchors and classes match
         else:
             assert self.yolo_model.layers[-1].output_shape[-1] == \
                 num_anchors/len(self.yolo_model.output) * (num_classes + 5), \
