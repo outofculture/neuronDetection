@@ -10,6 +10,8 @@ from os import listdir
 from os.path import isfile, join
 import os
 import sys
+sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.join(os.path.dirname(__file__), "AND_yolo3"))
 import argparse
 from yolo import YOLO  # , detect_video
 from PIL import Image

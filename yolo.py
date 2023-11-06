@@ -8,6 +8,7 @@ Automated neuron detection in rodent brain slice
     Purpose: Class definition of YOLO_v3 style detection model on image and video
 """
 import colorsys
+import sys
 import os
 from timeit import default_timer as timer
 import numpy as np
@@ -16,13 +17,15 @@ from tensorflow.compat.v1.keras.backend import get_session
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Input
 from PIL import Image, ImageFont, ImageDraw
-from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
-from yolo3.utils import letterbox_image
-import os
 import tensorflow as tf
 
 # from keras.utils import multi_gpu_model
 from skimage import color
+
+sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.join(os.path.dirname(__file__), "AND_yolo3"))
+from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
+from yolo3.utils import letterbox_image
 
 tf.compat.v1.disable_eager_execution()
 
@@ -134,9 +137,8 @@ class YOLO(object):
         return boxes, scores, classes
 
     # def detect_image(self, image,logPath):
-    def detect_image(
-        self, image
-    ):  # , logPath="C:/Users/myip7/Dropbox (GaTech)/Shared folders/AND_Project/FINAL_CODE/CNN/test.txt.", timeLog="testTimeLog.txt"):
+    def detect_image(self, image):
+        # , logPath="C:/Users/myip7/Dropbox (GaTech)/Shared folders/AND_Project/FINAL_CODE/CNN/test.txt.", timeLog="testTimeLog.txt"):
         start = timer()
         # logFileObj = open(logPath,mode='w+')
         if self.model_image_size != (None, None):
