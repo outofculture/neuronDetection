@@ -136,37 +136,16 @@ class YOLO(object):
         )
         return boxes, scores, classes
 
-    # def detect_image(self, image,logPath):
+    def get_boxes(self, image) -> dict:
+        image, out_boxes, out_classes, out_scores = self.detect_objects(image)
+        return {b: {"class": out_classes[i], "score": out_scores[i]} for i, b in enumerate(out_boxes)}
+
     def detect_image(self, image):
-        # , logPath="C:/Users/myip7/Dropbox (GaTech)/Shared folders/AND_Project/FINAL_CODE/CNN/test.txt.", timeLog="testTimeLog.txt"):
-        start = timer()
+        # start = timer()
         # logFileObj = open(logPath,mode='w+')
-        if self.model_image_size != (None, None):
-            assert self.model_image_size[0] % 32 == 0, "Multiples of 32 required"
-            assert self.model_image_size[1] % 32 == 0, "Multiples of 32 required"
-            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
-        else:
-            new_image_size = (
-                image.width - (image.width % 32),
-                image.height - (image.height % 32),
-            )
-            boxed_image = letterbox_image(image, new_image_size)
-        image_data = np.array(boxed_image, dtype="float32")
-        image = image.convert("RGB")
-        # print(image_data.shape)
-        image_data /= 255.0
-        image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
-        out_boxes, out_scores, out_classes = self.sess.run(
-            [self.boxes, self.scores, self.classes],
-            feed_dict={
-                self.yolo_model.input: image_data,
-                self.input_image_shape: [image.size[1], image.size[0]],
-                K.learning_phase(): 0,
-            },
-        )
+        image, out_boxes, out_classes, out_scores = self.detect_objects(image)
 
         # print('Found {} boxes for {}'.format(len(out_boxes), 'img'),file=logFileObj)
-        # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))#,file=logFileObj)
 
         # font = ImageFont.truetype(font='C:/Users/mgonzalez91/AND_repo/AND_Project-1/AND_yolo3/font/FiraMono-Medium.otf',
         font = ImageFont.truetype(
@@ -181,7 +160,7 @@ class YOLO(object):
             score = out_scores[i]
             label = "{} {:.2f}".format(predicted_class, score)
             draw = ImageDraw.Draw(image)
-            label_size = draw.textsize(label, font)
+            # label_size = draw.textsize(label, font)
             top, left, bottom, right = box
             top = max(0, np.floor(top + 0.5).astype("int32"))
             left = max(0, np.floor(left + 0.5).astype("int32"))
@@ -190,19 +169,19 @@ class YOLO(object):
             # print(label, (left, top), (right, bottom),file=logFileObj)
             # print(label, left, top, right, bottom, file=logFileObj)
 
-            if top - label_size[1] >= 0:
-                text_origin = np.array([left, top - label_size[1]])
-            else:
-                text_origin = np.array([left, top + 1])
+            # if top - label_size[1] >= 0:
+            #     text_origin = np.array([left, top - label_size[1]])
+            # else:
+            #     text_origin = np.array([left, top + 1])
             # My kingdom for a good redistributable image drawing library.
             for i in range(thickness):
                 draw.rectangle(
                     [left + i, top + i, right - i, bottom - i], outline="red"
                 )
-            draw.rectangle(
-                [tuple(text_origin), tuple(text_origin + label_size)], fill="red"
-            )
-            draw.text(text_origin, label, fill=(0), font=font)
+            # draw.rectangle(
+            #     [tuple(text_origin), tuple(text_origin + label_size)], fill="red"
+            # )
+            # draw.text(text_origin, label, fill=(0), font=font)
             del draw
 
         # end = timer()
@@ -212,6 +191,31 @@ class YOLO(object):
         # logFileTime.close()
         # logFileObj.close()
         return image
+
+    def detect_objects(self, image):
+        if self.model_image_size != (None, None):
+            assert self.model_image_size[0] % 32 == 0, "Multiples of 32 required"
+            assert self.model_image_size[1] % 32 == 0, "Multiples of 32 required"
+            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
+        else:
+            new_image_size = (
+                image.width - (image.width % 32),
+                image.height - (image.height % 32),
+            )
+            boxed_image = letterbox_image(image, new_image_size)
+        image_data = np.array(boxed_image, dtype="float32")
+        image = image.convert("RGB")
+        image_data /= 255.0
+        image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
+        out_boxes, out_scores, out_classes = self.sess.run(
+            [self.boxes, self.scores, self.classes],
+            feed_dict={
+                self.yolo_model.input: image_data,
+                self.input_image_shape: [image.size[1], image.size[0]],
+                K.learning_phase(): 0,
+            },
+        )
+        return image, out_boxes, out_classes, out_scores
 
     # # def detect_image(self, image,logPath):
     #     def detect_image(self, image, logPath="C:/Users/myip7/Dropbox (GaTech)/Shared folders/AND_Project/FINAL_CODE/CNN/test.txt.", timeLog="testTimeLog.txt"):

@@ -12,7 +12,12 @@
 
     reads images in from root_path and saves annotated pngs to save_path
 """
+import os
 import sys
+
+sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from yolo import YOLO, detect_video
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -28,7 +33,7 @@ def detect_img(yolo, img):
     return r_image
 
 
-img = "C:/Users/myip7/Documents/GitHub/neuronDetection_YOLO/slice4j.png"
+img = "slice4j.png"
 # Set paths here
 # root_path = 'C:/Users/myip7/Dropbox (GaTech)/Shared folders/AND_Project/FINAL_CODE/Images/'
 # save_path = 'C:/Users/myip7/Documents/AND_Data/'

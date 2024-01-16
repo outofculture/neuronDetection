@@ -1,5 +1,9 @@
 import sys
+import os
 import argparse
+sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), "AND_yolo3"))
 from yolo import YOLO, detect_video
 from PIL import Image
 
