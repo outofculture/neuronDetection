@@ -137,7 +137,7 @@ class MainPage(tk.Frame):
         self.lmain.grid(row=0, column=4)
         self.cap = cv2.VideoCapture(0)
 
-        self.show_frame()
+        # self.show_frame()
 
     def _show_frame(self):
         # _, frame = self.cap.read()
