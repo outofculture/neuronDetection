@@ -138,7 +138,7 @@ class YOLO(object):
 
     def get_boxes(self, image) -> dict:
         image, out_boxes, out_classes, out_scores = self.detect_objects(image)
-        return {b: {"class": out_classes[i], "score": out_scores[i]} for i, b in enumerate(out_boxes)}
+        return {tuple(b): {"class": out_classes[i], "score": out_scores[i]} for i, b in enumerate(out_boxes)}
 
     def detect_image(self, image):
         # start = timer()

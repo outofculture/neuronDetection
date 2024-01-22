@@ -11,6 +11,8 @@ def main(filename):
     image = normalize(image)
     image.show(filename)
     my_yolo = YOLO()
+    boxes = my_yolo.get_boxes(image)
+    print(boxes)
     r_image = my_yolo.detect_image(image)
     r_image.show("with boxes")
 
